@@ -1,5 +1,5 @@
 from django.shortcuts import redirect
-from ..models import Libro, Pedido, UserProfile, Categoria
+from ..models import Libro, Pedido, UserProfile, Categoria, Maquina
 from django.contrib.auth.models import User
 
 # RANDOM DATA
@@ -30,6 +30,7 @@ def data(request):
     Categoria.objects.all().delete()
     Libro.objects.all().delete()
     Pedido.objects.all().delete()
+    Maquina.objects.all().delete()
 
     # crea 2 usuarios
     user = get_user_model().objects.create_user(
@@ -123,5 +124,38 @@ def data(request):
             cliente=cliente_pedido,
             estado=estado_pedido,
         )
+
+    maquinas_ejercicio = [
+      {"nombre": "Cinta de correr", "descripcion": "Simula correr o caminar, ejercicio cardiovascular", "tipo": "Cardiovascular"},
+      {"nombre": "Bicicleta estática", "descripcion": "Bicicleta fija para ejercicio de ciclismo", "tipo": "Cardiovascular"},
+      {"nombre": "Máquina de pesas", "descripcion": "Permite levantar pesas para el entrenamiento de fuerza", "tipo": "Fuerza"},
+      {"nombre": "Elíptica", "descripcion": "Combina movimientos de carrera, ciclismo y escalada", "tipo": "Cardiovascular"},
+      {"nombre": "Máquina de remo", "descripcion": "Simula el remo, ejercicio de cuerpo completo", "tipo": "Cardiovascular"},
+      {"nombre": "Máquina de abdominales", "descripcion": "Ejercicio específico para fortalecer los músculos abdominales", "tipo": "Fuerza"},
+      {"nombre": "Máquina Smith", "descripcion": "Equipo de entrenamiento de fuerza guiado", "tipo": "Fuerza"},
+      {"nombre": "Plataforma vibratoria", "descripcion": "Vibraciones para mejorar el tono muscular y la circulación", "tipo": "Tonificación"},
+      {"nombre": "Máquina de press de piernas", "descripcion": "Ejercicio focalizado en los músculos de las piernas", "tipo": "Fuerza"},
+      {"nombre": "Máquina de glúteos", "descripcion": "Trabajo específico para los músculos glúteos", "tipo": "Fuerza"},
+      {"nombre": "Escaladora", "descripcion": "Simula subir escalones para ejercicio cardiovascular", "tipo": "Cardiovascular"},
+      {"nombre": "Máquina de curls", "descripcion": "Entrenamiento para bíceps y músculos del brazo", "tipo": "Fuerza"},
+      {"nombre": "Máquina de prensa de hombros", "descripcion": "Ejercicio para fortalecer los músculos de los hombros", "tipo": "Fuerza"},
+      {"nombre": "Banco inclinado", "descripcion": "Para ejercicios con pesas enfocados en el pecho", "tipo": "Fuerza"},
+      {"nombre": "Máquina de pull-ups asistidos", "descripcion": "Ayuda en la realización de pull-ups", "tipo": "Fuerza"},
+      {"nombre": "Máquina de extensiones de piernas", "descripcion": "Fortalecimiento de los músculos de las piernas", "tipo": "Fuerza"},
+      {"nombre": "Máquina de extensiones de tríceps", "descripcion": "Ejercicio para trabajar los tríceps", "tipo": "Fuerza"},
+      {"nombre": "Máquina de abdominales laterales", "descripcion": "Trabajo específico en los músculos abdominales laterales", "tipo": "Fuerza"},
+      {"nombre": "Máquina de glúteos abductores", "descripcion": "Fortalecimiento de los músculos abductores de cadera", "tipo": "Fuerza"},
+      {"nombre": "Máquina de flexiones de piernas", "descripcion": "Ejercicio para cuádriceps y femorales", "tipo": "Fuerza"},
+    ]
+
+    for maquina in maquinas_ejercicio:
+      Maquina.objects.create(
+        codigo=fake.unique.random_number(),
+        nombre=maquina['nombre'],
+        descripcion=maquina['descripcion'],
+        tipo=maquina['tipo'],
+        imagen='img/maquina/' + str(random.randint(1, 10)) + '.jpg'
+      )
+
 
     return redirect('index')

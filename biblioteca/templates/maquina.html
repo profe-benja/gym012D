@@ -1,0 +1,176 @@
+{% extends 'layouts/normal/base.html' %}
+{% load static %}
+
+{% block css %}
+  <style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+
+    .b-example-divider {
+      width: 100%;
+      height: 3rem;
+      background-color: rgba(0, 0, 0, 0.1);
+      border: solid rgba(0, 0, 0, 0.15);
+      border-width: 1px 0;
+      box-shadow: inset 0 0.5em 1.5em rgba(0, 0, 0, 0.1), inset 0 0.125em 0.5em rgba(0, 0, 0, 0.15);
+    }
+
+    .b-example-vr {
+      flex-shrink: 0;
+      width: 1.5rem;
+      height: 100vh;
+    }
+
+    .bi {
+      vertical-align: -0.125em;
+      fill: currentColor;
+    }
+
+    .nav-scroller {
+      position: relative;
+      z-index: 2;
+      height: 2.75rem;
+      overflow-y: hidden;
+    }
+
+    .nav-scroller .nav {
+      display: flex;
+      flex-wrap: nowrap;
+      padding-bottom: 1rem;
+      margin-top: -1px;
+      overflow-x: auto;
+      text-align: center;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .btn-bd-primary {
+      --bd-violet-bg: #712cf9;
+      --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
+
+      --bs-btn-font-weight: 600;
+      --bs-btn-color: var(--bs-white);
+      --bs-btn-bg: var(--bd-violet-bg);
+      --bs-btn-border-color: var(--bd-violet-bg);
+      --bs-btn-hover-color: var(--bs-white);
+      --bs-btn-hover-bg: #6528e0;
+      --bs-btn-hover-border-color: #6528e0;
+      --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
+      --bs-btn-active-color: var(--bs-btn-hover-color);
+      --bs-btn-active-bg: #5a23c8;
+      --bs-btn-active-border-color: #5a23c8;
+    }
+
+    .bd-mode-toggle {
+      z-index: 1500;
+    }
+
+    .bd-mode-toggle .dropdown-menu .active .bi {
+      display: block !important;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+{% endblock %}
+
+{% block contenido %}
+  <div class="navbar navbar-dark bg-dark shadow-sm">
+    <div class="container">
+      <a href="#" class="navbar-brand d-flex align-items-center"><strong>📚 megabiblioteca.cl 📚</strong></a>
+      <div>
+        {% if perfil == 'admin' %}
+          <a type="button" class="btn btn-sm btn-info" href="{% url 'admin_index' %}">Administrador</a>
+        {% endif %}
+        <a type="button" class="btn btn-sm btn-danger" href="{% url 'logout' %}">Cerrar sesión</a>
+      </div>
+    </div>
+  </div>
+  <main>
+    <header class="bg-success text-white text-center py-5">
+      <h1 class="display-4">🏋️‍♂️🏋️🏋️‍♀️ GYMFLOW 🏋️‍♂️🏋️🏋️‍♀️</h1>
+      <p class="lead">Hace ejercicio desde tu casa y jardín</p>
+    </header>
+
+    <div class="album py-3 bg-body-tertiary">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-8 mb-3">
+            {% include 'partials/_back.html' with url='/home' name='volver' %}
+            <div class="card shadow">
+              <div class="row">
+                <div class="col-md-4">
+                  <img src="{% static maquina.imagen %}" class="bd-placeholder-img card-img-top" width="100%" />
+                </div>
+                <div class="col">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <p class="badge bg-primary mb-3">{{ maquina.tipo }}</p>
+                      <p class="text-end">Código: {{ maquina.codigo }}</p>
+                    </div>
+                    <h3 class="card-title">{{ maquina.nombre }}</h3>
+                    <p class="card-text">
+                      <em>{{ maquina.descripcion }}</em>
+                    </p>
+                  </div>
+                  <form action="" method="post">
+                    {% csrf_token %}
+                    <div class="d-grid p-2">
+                      {% comment %} <a href="{% url 'ver_libro' %}" class="btn btn-sm btn-outline-secondary">Ver libro</a> {% endcomment %}
+                      <button type="submit" class="btn btn-sm btn-outline-primary">AGREGAR</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="row">
+                <div id="mapid" style="height: 400px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+{% endblock %}
+
+{% block js  %}
+
+
+<script>
+// Coordenadas de San Joaquín
+var sanJoaquinCoords = [-33.4986, -70.6045];
+
+// Inicializa el mapa centrado en San Joaquín
+var mymap = L.map('mapid').setView(sanJoaquinCoords, 25);
+
+// Añade el mapa base de OpenStreetMap
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(mymap);
+
+// Icono personalizado
+var customIcon = L.icon({
+    iconUrl: '/static/img/maquina/icono.png',
+    iconSize: [100, 100], // Tamaño del icono
+    iconAnchor: [16, 32], // Punto de anclaje para ubicar el icono en las coordenadas
+    popupAnchor: [0, -32] // Punto de anclaje del popup en relación con el icono
+});
+
+// Añade un marcador con el icono personalizado
+var marker = L.marker(sanJoaquinCoords, { icon: customIcon }).addTo(mymap);
+
+// Puedes agregar un popup al marcador si lo deseas
+marker.bindPopup("<b>San Joaquín</b>").openPopup();
+</script>
+{% endblock  %}
